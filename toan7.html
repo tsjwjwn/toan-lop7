@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="manifest.json">
+<title>📐 Toán Lớp 7</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --border: #334155;
+  --accent: #38bdf8;
+  --accent2: #818cf8;
+  --gold: #fbbf24;
+  --green: #34d399;
+  --red: #f87171;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --radius: 12px;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; }
+body {
+  font-family:'Lexend',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  padding:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 10%, rgba(56,189,248,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 80% 90%, rgba(129,140,248,0.08) 0%, transparent 60%);
+  pointer-events:none;
+  z-index:0;
+}
+
+.wrap { width:100%; max-width:560px; position:relative; z-index:1; }
+
+/* ===== START ===== */
+#screen-start { text-align:center; }
+.logo { font-size:56px; margin-bottom:12px; }
+.game-title {
+  font-size:28px; font-weight:800; letter-spacing:-0.5px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  margin-bottom:4px;
+}
+.game-sub { color:var(--muted); font-size:13px; margin-bottom:28px; }
+.info-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:10px; margin-bottom:28px;
+}
+.info-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:var(--radius); padding:14px;
+  text-align:center;
+}
+.info-card .ic-num { font-size:24px; font-weight:800; color:var(--accent); }
+.info-card .ic-lbl { font-size:11px; color:var(--muted); margin-top:2px; }
+.topics {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:var(--radius); padding:16px; margin-bottom:24px;
+  text-align:left;
+}
+.topics h3 { font-size:12px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
+.topic-list { display:flex; flex-wrap:wrap; gap:6px; }
+.topic-tag {
+  background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.25);
+  border-radius:20px; padding:4px 12px; font-size:11px; color:var(--accent);
+}
+
+/* ===== QUIZ ===== */
+#screen-quiz { display:none; }
+.progress-area { margin-bottom:16px; }
+.prog-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.prog-label { font-size:12px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+.prog-score { font-size:12px; color:var(--gold); font-weight:700; }
+.prog-bar { height:4px; background:var(--border); border-radius:2px; overflow:hidden; }
+.prog-fill { height:100%; background:linear-gradient(to right,var(--accent),var(--accent2)); border-radius:2px; transition:width 0.4s ease; }
+
+.topic-badge {
+  display:inline-block; background:rgba(129,140,248,0.15);
+  border:1px solid rgba(129,140,248,0.3);
+  border-radius:20px; padding:3px 12px;
+  font-size:10px; color:var(--accent2); letter-spacing:0.5px;
+  margin-bottom:12px;
+}
+
+.q-num { font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; margin-bottom:6px; }
+.q-text {
+  font-size:18px; font-weight:600; line-height:1.5;
+  color:var(--text); margin-bottom:20px;
+  min-height:60px;
+}
+
+.options { display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+.opt {
+  background:var(--card); border:1.5px solid var(--border);
+  border-radius:var(--radius); padding:14px 16px;
+  cursor:pointer; display:flex; align-items:center; gap:12px;
+  font-size:15px; color:var(--text);
+  transition:all 0.18s;
+}
+.opt:hover:not(.disabled) { border-color:var(--accent); background:rgba(56,189,248,0.07); }
+.opt:active:not(.disabled) { transform:scale(0.985); }
+.opt-letter {
+  width:28px; height:28px; border-radius:8px;
+  background:rgba(255,255,255,0.06); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:700; color:var(--muted);
+  flex-shrink:0; font-family:'JetBrains Mono',monospace;
+  transition:all 0.18s;
+}
+.opt.correct { border-color:var(--green); background:rgba(52,211,153,0.1); color:var(--green); }
+.opt.correct .opt-letter { background:var(--green); border-color:var(--green); color:#0f172a; }
+.opt.wrong { border-color:var(--red); background:rgba(248,113,113,0.08); color:var(--red); }
+.opt.wrong .opt-letter { background:var(--red); border-color:var(--red); color:#0f172a; }
+.opt.disabled { cursor:default; }
+
+.explain {
+  background:rgba(52,211,153,0.07); border:1px solid rgba(52,211,153,0.25);
+  border-radius:10px; padding:10px 14px;
+  font-size:13px; color:#86efac; line-height:1.6;
+  margin-bottom:14px; display:none;
+}
+.explain.wrong-ex { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.25); color:#fca5a5; }
+.explain.show { display:block; }
+
+.btn {
+  display:block; width:100%; padding:14px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none; border-radius:var(--radius);
+  font-family:'Lexend',sans-serif; font-size:14px; font-weight:700;
+  color:#0f172a; cursor:pointer; letter-spacing:0.5px;
+  transition:all 0.2s;
+}
+.btn:hover { opacity:0.9; transform:translateY(-1px); }
+.btn:active { transform:scale(0.98); }
+.btn:disabled { opacity:0.3; cursor:not-allowed; transform:none; }
+
+/* ===== RESULT ===== */
+#screen-result { display:none; text-align:center; }
+.result-ring {
+  width:140px; height:140px; border-radius:50%;
+  border:3px solid var(--accent);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  margin:0 auto 16px;
+  background:radial-gradient(circle,rgba(56,189,248,0.1),transparent);
+  box-shadow:0 0 40px rgba(56,189,248,0.2);
+}
+.result-pct { font-size:42px; font-weight:800; color:var(--accent); font-family:'JetBrains Mono',monospace; }
+.result-sub { font-size:11px; color:var(--muted); }
+.result-grade { font-size:22px; font-weight:800; margin-bottom:4px; }
+.result-msg { font-size:13px; color:var(--muted); margin-bottom:20px; }
+.result-stats {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:var(--radius); padding:16px; margin-bottom:20px;
+}
+.stat-row {
+  display:flex; justify-content:space-between;
+  padding:7px 0; border-bottom:1px solid var(--border);
+  font-size:13px; color:var(--muted);
+}
+.stat-row:last-child { border:none; }
+.stat-row b { color:var(--text); font-weight:700; }
+.btn-outline {
+  display:block; width:100%; padding:12px;
+  background:transparent; border:1.5px solid var(--border);
+  border-radius:var(--radius); font-family:'Lexend',sans-serif;
+  font-size:13px; font-weight:600; color:var(--muted);
+  cursor:pointer; margin-top:10px; transition:all 0.2s;
+}
+.btn-outline:hover { border-color:var(--accent); color:var(--accent); }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.screen.active { animation:fadeUp 0.3s ease; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- START -->
+  <div id="screen-start" class="screen active">
+    <div class="logo">📐</div>
+    <div class="game-title">Toán Lớp 7</div>
+    <div class="game-sub">Trắc nghiệm · 100 câu hỏi</div>
+    <div class="info-grid">
+      <div class="info-card"><div class="ic-num">100</div><div class="ic-lbl">Câu hỏi</div></div>
+      <div class="info-card"><div class="ic-num">10</div><div class="ic-lbl">Chủ đề</div></div>
+      <div class="info-card"><div class="ic-num">4</div><div class="ic-lbl">Đáp án/câu</div></div>
+      <div class="info-card"><div class="ic-num">∞</div><div class="ic-lbl">Lượt chơi</div></div>
+    </div>
+    <div class="topics">
+      <h3>Chủ đề ôn tập</h3>
+      <div class="topic-list">
+        <span class="topic-tag">Số hữu tỉ</span>
+        <span class="topic-tag">Lũy thừa</span>
+        <span class="topic-tag">Tỉ lệ thức</span>
+        <span class="topic-tag">Hàm số</span>
+        <span class="topic-tag">Thống kê</span>
+        <span class="topic-tag">Tam giác</span>
+        <span class="topic-tag">Góc</span>
+        <span class="topic-tag">Đường thẳng</span>
+        <span class="topic-tag">Biểu thức</span>
+        <span class="topic-tag">Ứng dụng</span>
+      </div>
+    </div>
+    <button class="btn" onclick="startQuiz()">🚀 Bắt đầu làm bài</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="screen-quiz" class="screen">
+    <div class="progress-area">
+      <div class="prog-row">
+        <span class="prog-label" id="prog-label">Câu 1/100</span>
+        <span class="prog-score">⭐ <span id="score-display">0</span> điểm</span>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="topic-badge" id="topic-badge">Số hữu tỉ</div>
+    <div class="q-num" id="q-num">Câu 1</div>
+    <div class="q-text" id="q-text"></div>
+    <div class="options" id="options"></div>
+    <div class="explain" id="explain"></div>
+    <button class="btn" id="next-btn" onclick="nextQ()" disabled>Câu tiếp theo →</button>
+  </div>
+
+  <!-- RESULT -->
+  <div id="screen-result" class="screen">
+    <div style="margin-bottom:8px;font-size:13px;color:var(--muted);">Kết quả bài thi</div>
+    <div class="result-ring">
+      <div class="result-pct" id="r-pct">0%</div>
+      <div class="result-sub">chính xác</div>
+    </div>
+    <div class="result-grade" id="r-grade"></div>
+    <div class="result-msg" id="r-msg"></div>
+    <div class="result-stats">
+      <div class="stat-row"><span>✅ Đúng</span><b id="r-correct">0/100</b></div>
+      <div class="stat-row"><span>❌ Sai</span><b id="r-wrong">0</b></div>
+      <div class="stat-row"><span>⭐ Điểm số</span><b id="r-score">0</b></div>
+    </div>
+    <button class="btn" onclick="restartQuiz()">🔄 Làm lại</button>
+    <button class="btn-outline" onclick="showStart()">← Trang chủ</button>
+  </div>
+
+</div>
+
+<script>
+// ===== 100 CÂU TOÁN LỚP 7 =====
+const questions = [
+  // ── CHỦ ĐỀ 1: SỐ HỮU TỈ (câu 1–15) ──
+  {t:'Số hữu tỉ',q:'Số hữu tỉ là số có thể viết dưới dạng nào?',o:['a/b với a,b ∈ Z, b ≠ 0','a/b với a,b ∈ N','a + b với a,b ∈ Z','Tất cả đều sai'],a:0,e:'Số hữu tỉ là số có thể viết dưới dạng a/b với a, b là số nguyên và b ≠ 0.'},
+  {t:'Số hữu tỉ',q:'Kết quả của (-3/4) + (1/2) là bao nhiêu?',o:['-1/4','-5/4','1/4','-3/8'],a:0,e:'(-3/4)+(1/2) = -3/4+2/4 = -1/4'},
+  {t:'Số hữu tỉ',q:'(-2/3) × (3/4) bằng bao nhiêu?',o:['-1/2','-2/12','1/2','-6/12'],a:0,e:'(-2/3)×(3/4) = (-2×3)/(3×4) = -6/12 = -1/2'},
+  {t:'Số hữu tỉ',q:'Số đối của -5/7 là số nào?',o:['5/7','-5/7','7/5','-7/5'],a:0,e:'Số đối của -5/7 là 5/7 vì (-5/7)+(5/7)=0.'},
+  {t:'Số hữu tỉ',q:'(3/5) ÷ (-6/10) bằng bao nhiêu?',o:['-1','1','-1/2','3/5'],a:0,e:'(3/5)÷(-6/10) = (3/5)×(10/-6) = 30/-30 = -1'},
+  {t:'Số hữu tỉ',q:'Giá trị tuyệt đối |−7/3| bằng bao nhiêu?',o:['7/3','-7/3','3/7','-3/7'],a:0,e:'Giá trị tuyệt đối luôn không âm, nên |-7/3| = 7/3.'},
+  {t:'Số hữu tỉ',q:'So sánh: -2/3 và -3/4, số nào lớn hơn?',o:['-2/3','-3/4','Bằng nhau','Không so sánh được'],a:0,e:'-2/3 = -8/12, -3/4 = -9/12. Vì -8 > -9 nên -2/3 > -3/4.'},
+  {t:'Số hữu tỉ',q:'Tính: 1/2 + 1/3 + 1/6',o:['1','2/3','5/6','1/6'],a:0,e:'1/2+1/3+1/6 = 3/6+2/6+1/6 = 6/6 = 1'},
+  {t:'Số hữu tỉ',q:'(-1/2)³ bằng bao nhiêu?',o:['-1/8','1/8','-3/8','3/8'],a:0,e:'(-1/2)³ = (-1)³/2³ = -1/8'},
+  {t:'Số hữu tỉ',q:'Số nghịch đảo của 3/5 là?',o:['5/3','-3/5','-5/3','3/5'],a:0,e:'Số nghịch đảo của 3/5 là 5/3 vì (3/5)×(5/3)=1.'},
+  {t:'Số hữu tỉ',q:'Tính: 2/3 − (−1/6)',o:['5/6','1/2','1/6','7/6'],a:0,e:'2/3−(−1/6) = 2/3+1/6 = 4/6+1/6 = 5/6'},
+  {t:'Số hữu tỉ',q:'Kết quả (-5/6) × (-12/25) bằng?',o:['2/5','5/2','-2/5','-5/2'],a:0,e:'(-5/6)×(-12/25) = 60/150 = 2/5. Hai số âm nhân nhau cho kết quả dương.'},
+  {t:'Số hữu tỉ',q:'Số hữu tỉ nào nằm giữa 1/2 và 3/4?',o:['5/8','1/4','7/8','1/8'],a:0,e:'5/8 nằm giữa 1/2=4/8 và 3/4=6/8.'},
+  {t:'Số hữu tỉ',q:'Tính: (2/5 + 3/10) × 4',o:['28/10 = 14/5','7/10','28/50','14/10'],a:0,e:'2/5+3/10 = 4/10+3/10 = 7/10. 7/10×4 = 28/10 = 14/5'},
+  {t:'Số hữu tỉ',q:'Kết quả 0,25 + (−0,75) bằng?',o:['-0,5','0,5','-1','1'],a:0,e:'0,25+(−0,75) = 0,25−0,75 = −0,5'},
+
+  // ── CHỦ ĐỀ 2: LŨY THỪA (câu 16–25) ──
+  {t:'Lũy thừa',q:'2⁵ bằng bao nhiêu?',o:['32','16','64','10'],a:0,e:'2⁵ = 2×2×2×2×2 = 32'},
+  {t:'Lũy thừa',q:'3⁴ bằng bao nhiêu?',o:['81','64','27','12'],a:0,e:'3⁴ = 3×3×3×3 = 81'},
+  {t:'Lũy thừa',q:'a^m × a^n bằng biểu thức nào?',o:['a^(m+n)','a^(m×n)','a^(m-n)','(a+a)^(m+n)'],a:0,e:'Quy tắc nhân lũy thừa cùng cơ số: aᵐ × aⁿ = aᵐ⁺ⁿ'},
+  {t:'Lũy thừa',q:'(aᵐ)ⁿ bằng biểu thức nào?',o:['a^(m×n)','a^(m+n)','aᵐ + aⁿ','a^(m÷n)'],a:0,e:'Lũy thừa của lũy thừa: (aᵐ)ⁿ = aᵐ×ⁿ'},
+  {t:'Lũy thừa',q:'2¹⁰ ÷ 2⁷ bằng bao nhiêu?',o:['8','4','16','2'],a:0,e:'2¹⁰ ÷ 2⁷ = 2¹⁰⁻⁷ = 2³ = 8'},
+  {t:'Lũy thừa',q:'(−2)³ bằng bao nhiêu?',o:['-8','8','-6','6'],a:0,e:'(−2)³ = (−2)×(−2)×(−2) = −8. Số âm lũy thừa bậc lẻ cho kết quả âm.'},
+  {t:'Lũy thừa',q:'(−3)⁴ bằng bao nhiêu?',o:['81','-81','12','-12'],a:0,e:'(−3)⁴ = (−3)×(−3)×(−3)×(−3) = 81. Số âm lũy thừa bậc chẵn cho kết quả dương.'},
+  {t:'Lũy thừa',q:'x⁰ bằng bao nhiêu (x ≠ 0)?',o:['1','0','x','Không xác định'],a:0,e:'Bất kỳ số nào khác 0 lũy thừa bằng 0 đều bằng 1: x⁰ = 1.'},
+  {t:'Lũy thừa',q:'Căn bậc hai số học của 144 là?',o:['12','11','13','14'],a:0,e:'√144 = 12 vì 12² = 144.'},
+  {t:'Lũy thừa',q:'Tính (1/2)⁴',o:['1/16','1/8','1/4','4'],a:0,e:'(1/2)⁴ = 1⁴/2⁴ = 1/16'},
+
+  // ── CHỦ ĐỀ 3: TỈ LỆ THỨC (câu 26–35) ──
+  {t:'Tỉ lệ thức',q:'Tỉ lệ thức a/b = c/d có tính chất cơ bản nào?',o:['a×d = b×c','a+d = b+c','a×b = c×d','a-d = b-c'],a:0,e:'Tính chất cơ bản của tỉ lệ thức: tích ngoại = tích nội, tức a×d = b×c.'},
+  {t:'Tỉ lệ thức',q:'Tìm x biết 3/4 = x/12',o:['9','8','6','3'],a:0,e:'3/4 = x/12 → 3×12 = 4x → x = 36/4 = 9'},
+  {t:'Tỉ lệ thức',q:'Cho a/b = c/d. Phát biểu nào đúng?',o:['(a+b)/b = (c+d)/d','a/c = b/c','a/b = d/c','a+b = c+d'],a:0,e:'Từ a/b = c/d ta suy ra (a+b)/b = (c+d)/d (tính chất hoán đổi và cộng tỉ lệ thức).'},
+  {t:'Tỉ lệ thức',q:'Chia 60 thành hai phần tỉ lệ với 2:3. Phần nhỏ là?',o:['24','36','20','30'],a:0,e:'Tổng 2+3=5. Phần nhỏ = 60×2/5 = 24.'},
+  {t:'Tỉ lệ thức',q:'Biết a:b:c = 2:3:5 và a+b+c = 100, tìm c.',o:['50','30','20','60'],a:0,e:'Tổng tỉ 2+3+5=10. c = 100×5/10 = 50.'},
+  {t:'Tỉ lệ thức',q:'Nếu 4/x = 8/6, giá trị x là?',o:['3','6','2','12'],a:0,e:'4/x = 8/6 → 4×6 = 8x → x = 24/8 = 3'},
+  {t:'Tỉ lệ thức',q:'Tỉ số của 45 và 60 là?',o:['3/4','4/3','3/5','5/4'],a:0,e:'45/60 = 3/4 (rút gọn chia cả hai cho 15).'},
+  {t:'Tỉ lệ thức',q:'Ba số a, b, c tỉ lệ với 1:2:3 và tổng bằng 36. Tìm b.',o:['12','6','18','8'],a:0,e:'Tổng tỉ = 1+2+3 = 6. b = 36×2/6 = 12.'},
+  {t:'Tỉ lệ thức',q:'Biết x/3 = y/5 = z/7 và x+y+z=60. Tìm x.',o:['12','20','28','15'],a:0,e:'Tổng tỉ = 3+5+7 = 15. x = 60×3/15 = 12.'},
+  {t:'Tỉ lệ thức',q:'Cho a/3 = b/4. Thì a:b bằng?',o:['3:4','4:3','1:1','3:3'],a:0,e:'Từ a/3 = b/4 ta có a:b = 3:4.'},
+
+  // ── CHỦ ĐỀ 4: HÀM SỐ - ĐỒ THỊ (câu 36–45) ──
+  {t:'Hàm số',q:'Hàm số y = ax (a ≠ 0) đi qua điểm nào sau đây?',o:['Gốc tọa độ O(0;0)','(1;0)','(0;1)','(1;1)'],a:0,e:'Hàm số bậc nhất dạng y=ax luôn đi qua gốc tọa độ O(0,0).'},
+  {t:'Hàm số',q:'Hàm số y = 2x tại x = 3 có giá trị là?',o:['6','5','8','2'],a:0,e:'y = 2×3 = 6'},
+  {t:'Hàm số',q:'Đồ thị hàm số y = -x nằm ở góc phần tư nào?',o:['II và IV','I và III','I và II','III và IV'],a:0,e:'Hàm số y=-x (a<0) đồng biến theo chiều âm, đồ thị nằm ở góc phần tư II và IV.'},
+  {t:'Hàm số',q:'Nếu y = f(x) = 3x - 1, thì f(2) = ?',o:['5','7','6','4'],a:0,e:'f(2) = 3×2 - 1 = 6 - 1 = 5'},
+  {t:'Hàm số',q:'Hàm số y = kx (k > 0) là hàm số như thế nào?',o:['Đồng biến','Nghịch biến','Hằng số','Không xác định'],a:0,e:'Khi k > 0, x tăng thì y tăng, nên hàm số y = kx đồng biến.'},
+  {t:'Hàm số',q:'Điểm nào thuộc đồ thị y = 2x?',o:['(1;2)','(2;1)','(0;2)','(1;0)'],a:0,e:'Khi x=1: y=2×1=2, nên điểm (1;2) thuộc đồ thị.'},
+  {t:'Hàm số',q:'Tọa độ điểm A(-2; 4) nằm ở góc phần tư nào?',o:['II','I','III','IV'],a:0,e:'x âm, y dương → góc phần tư II.'},
+  {t:'Hàm số',q:'Cho hàm số y = ax, biết đồ thị đi qua (2; -6). Tìm a.',o:['-3','3','-2','2'],a:0,e:'-6 = a×2 → a = -3'},
+  {t:'Hàm số',q:'Khoảng cách từ điểm A(3; 4) đến gốc tọa độ là?',o:['5','7','6','4'],a:0,e:'d = √(3²+4²) = √(9+16) = √25 = 5'},
+  {t:'Hàm số',q:'Điểm nào sau đây thuộc đồ thị y = -3x?',o:['(1;-3)','(-1;-3)','(1;3)','(0;3)'],a:0,e:'Khi x=1: y=-3×1=-3 → điểm (1;-3) thuộc đồ thị.'},
+
+  // ── CHỦ ĐỀ 5: THỐNG KÊ (câu 46–55) ──
+  {t:'Thống kê',q:'Số trung bình cộng của 4, 6, 8, 10, 12 là?',o:['8','7','9','10'],a:0,e:'(4+6+8+10+12)/5 = 40/5 = 8'},
+  {t:'Thống kê',q:'Mốt (mode) của dãy số: 2, 3, 3, 4, 5, 3, 6 là?',o:['3','2','4','5'],a:0,e:'Số 3 xuất hiện nhiều nhất (3 lần), nên mốt = 3.'},
+  {t:'Thống kê',q:'Trung vị (median) của: 1, 2, 3, 4, 5 là?',o:['3','2','4','2.5'],a:0,e:'Dãy có 5 phần tử, giá trị giữa (thứ 3) là 3.'},
+  {t:'Thống kê',q:'Khoảng biến thiên của 2, 5, 3, 9, 1 là?',o:['8','9','7','4'],a:0,e:'Khoảng biến thiên = Lớn nhất - Nhỏ nhất = 9 - 1 = 8.'},
+  {t:'Thống kê',q:'Tần số là gì?',o:['Số lần xuất hiện của một giá trị','Tổng các giá trị','Giá trị trung bình','Giá trị lớn nhất'],a:0,e:'Tần số là số lần một giá trị xuất hiện trong bộ dữ liệu.'},
+  {t:'Thống kê',q:'Trung bình cộng của 10 số có tổng 150 là?',o:['15','10','20','25'],a:0,e:'Trung bình = Tổng / Số lượng = 150/10 = 15'},
+  {t:'Thống kê',q:'Dãy số: 7, 7, 8, 9, 9, 9, 10. Mốt là?',o:['9','7','8','10'],a:0,e:'Số 9 xuất hiện nhiều nhất (3 lần) nên mốt = 9.'},
+  {t:'Thống kê',q:'Có 5 bạn cao: 150, 155, 160, 165, 170 cm. Chiều cao TB là?',o:['160','155','165','162'],a:0,e:'TB = (150+155+160+165+170)/5 = 800/5 = 160 cm'},
+  {t:'Thống kê',q:'Trung vị của dãy: 3, 5, 7, 9 là?',o:['6','5','7','8'],a:0,e:'Dãy 4 phần tử: trung vị = (5+7)/2 = 6'},
+  {t:'Thống kê',q:'Biểu đồ cột thường dùng để biểu diễn gì?',o:['So sánh các đại lượng','Sự thay đổi theo thời gian','Tỉ lệ phần trăm','Phân phối tần số'],a:0,e:'Biểu đồ cột dùng để so sánh các đại lượng khác nhau.'},
+
+  // ── CHỦ ĐỀ 6: TAM GIÁC (câu 56–65) ──
+  {t:'Tam giác',q:'Tổng ba góc trong một tam giác bằng?',o:['180°','360°','90°','270°'],a:0,e:'Tổng ba góc trong tam giác luôn bằng 180°.'},
+  {t:'Tam giác',q:'Tam giác đều có các góc bằng?',o:['60° mỗi góc','90° mỗi góc','45° mỗi góc','120° mỗi góc'],a:0,e:'Tam giác đều có 3 góc bằng nhau và bằng 180°/3 = 60°.'},
+  {t:'Tam giác',q:'Tam giác vuông có một góc bằng?',o:['90°','60°','45°','180°'],a:0,e:'Tam giác vuông có đúng một góc vuông bằng 90°.'},
+  {t:'Tam giác',q:'Tam giác có cạnh 3, 4, 5 là tam giác gì?',o:['Vuông','Đều','Cân','Tù'],a:0,e:'3²+4²=9+16=25=5² nên theo định lý Pythagore, đây là tam giác vuông.'},
+  {t:'Tam giác',q:'Đường trung tuyến của tam giác là đường nối?',o:['Đỉnh với trung điểm cạnh đối','Hai đỉnh','Đỉnh với trọng tâm','Trung điểm hai cạnh'],a:0,e:'Đường trung tuyến nối một đỉnh với trung điểm của cạnh đối diện.'},
+  {t:'Tam giác',q:'Tam giác cân có bao nhiêu cạnh bằng nhau?',o:['2','3','1','Không có'],a:0,e:'Tam giác cân có đúng 2 cạnh bằng nhau (hai cạnh bên).'},
+  {t:'Tam giác',q:'Diện tích tam giác có đáy 8cm và chiều cao 5cm là?',o:['20 cm²','40 cm²','13 cm²','80 cm²'],a:0,e:'S = (đáy × chiều cao)/2 = (8×5)/2 = 20 cm²'},
+  {t:'Tam giác',q:'Nếu tam giác có hai góc 50° và 70°, góc thứ ba là?',o:['60°','50°','70°','80°'],a:0,e:'Góc thứ ba = 180° − 50° − 70° = 60°'},
+  {t:'Tam giác',q:'Trong tam giác vuông, cạnh đối diện với góc vuông gọi là?',o:['Cạnh huyền','Cạnh góc vuông','Đường cao','Trung tuyến'],a:0,e:'Cạnh đối diện với góc vuông là cạnh huyền, là cạnh dài nhất.'},
+  {t:'Tam giác',q:'Theo định lý Pythagore, trong tam giác vuông: a²+b²=?',o:['c²','c','2c','(a+b)²'],a:0,e:'Định lý Pythagore: bình phương cạnh huyền = tổng bình phương hai cạnh góc vuông: a²+b²=c²'},
+
+  // ── CHỦ ĐỀ 7: GÓC VÀ ĐƯỜNG THẲNG (câu 66–75) ──
+  {t:'Góc & Đường thẳng',q:'Hai góc bù nhau có tổng bằng?',o:['180°','90°','360°','270°'],a:0,e:'Hai góc bù nhau có tổng bằng 180°.'},
+  {t:'Góc & Đường thẳng',q:'Hai góc phụ nhau có tổng bằng?',o:['90°','180°','360°','270°'],a:0,e:'Hai góc phụ nhau có tổng bằng 90°.'},
+  {t:'Góc & Đường thẳng',q:'Hai đường thẳng song song không có điểm chung, vậy chúng cắt nhau bao nhiêu điểm?',o:['0','1','2','Vô số'],a:0,e:'Hai đường thẳng song song không có điểm chung nào.'},
+  {t:'Góc & Đường thẳng',q:'Góc đối đỉnh thì như thế nào?',o:['Bằng nhau','Bù nhau','Phụ nhau','Vuông góc'],a:0,e:'Hai góc đối đỉnh luôn bằng nhau.'},
+  {t:'Góc & Đường thẳng',q:'Khi hai đường thẳng song song bị cắt bởi đường thứ ba, hai góc so le trong thì?',o:['Bằng nhau','Bù nhau','Phụ nhau','Không liên quan'],a:0,e:'Hai góc so le trong bằng nhau khi hai đường thẳng song song.'},
+  {t:'Góc & Đường thẳng',q:'Góc vuông có số đo là?',o:['90°','180°','60°','45°'],a:0,e:'Góc vuông là góc có số đo bằng 90°.'},
+  {t:'Góc & Đường thẳng',q:'Tia phân giác của góc chia góc thành?',o:['Hai phần bằng nhau','Ba phần bằng nhau','Hai phần khác nhau','Bốn phần bằng nhau'],a:0,e:'Tia phân giác chia góc thành hai phần bằng nhau.'},
+  {t:'Góc & Đường thẳng',q:'Hai góc đồng vị (khi cắt 2 đường thẳng song song) thì?',o:['Bằng nhau','Bù nhau','Phụ nhau','Đối đỉnh'],a:0,e:'Hai góc đồng vị bằng nhau khi hai đường thẳng song song.'},
+  {t:'Góc & Đường thẳng',q:'Đường thẳng vuông góc với trục Ox tại điểm (3;0) có phương trình?',o:['x = 3','y = 3','x = 0','y = 0'],a:0,e:'Đường thẳng vuông góc với trục Ox tại điểm (3;0) là x = 3.'},
+  {t:'Góc & Đường thẳng',q:'Góc bẹt có số đo là?',o:['180°','90°','360°','270°'],a:0,e:'Góc bẹt là góc có số đo bằng 180°, hai cạnh tạo thành đường thẳng.'},
+
+  // ── CHỦ ĐỀ 8: BIỂU THỨC ĐẠI SỐ (câu 76–85) ──
+  {t:'Biểu thức đại số',q:'Rút gọn: 3x + 2x − x',o:['4x','5x','6x','0'],a:0,e:'3x+2x−x = (3+2−1)x = 4x'},
+  {t:'Biểu thức đại số',q:'Tính giá trị biểu thức 2x − 3 khi x = 4',o:['5','8','11','−3'],a:0,e:'2×4−3 = 8−3 = 5'},
+  {t:'Biểu thức đại số',q:'Phân tích 6x²y + 9xy² thành nhân tử',o:['3xy(2x+3y)','3xy(2x+3)','6xy(x+y)','3x(2y+3y²)'],a:0,e:'UCLN(6,9)=3, mỗi hạng tử có x và y: 3xy(2x+3y)'},
+  {t:'Biểu thức đại số',q:'(2x)² bằng biểu thức nào?',o:['4x²','2x²','4x','8x'],a:0,e:'(2x)² = 2²×x² = 4x²'},
+  {t:'Biểu thức đại số',q:'Rút gọn (a+b)² − (a−b)²',o:['4ab','2a²+2b²','0','2ab'],a:0,e:'(a+b)²=(a²+2ab+b²), (a−b)²=(a²−2ab+b²). Hiệu = 4ab.'},
+  {t:'Biểu thức đại số',q:'Đơn thức nào đồng dạng với 3x²y?',o:['-5x²y','3xy²','3x²','5xy'],a:0,e:'Hai đơn thức đồng dạng phải có cùng phần biến, nên −5x²y đồng dạng với 3x²y.'},
+  {t:'Biểu thức đại số',q:'Bậc của đa thức 5x³y² + 3x²y là?',o:['5','3','4','6'],a:0,e:'Bậc của 5x³y² là 3+2=5, bậc của 3x²y là 2+1=3. Bậc đa thức = 5.'},
+  {t:'Biểu thức đại số',q:'Rút gọn: 5x²y − 3x²y + x²y',o:['3x²y','5x²y','2x²y','9x²y'],a:0,e:'(5−3+1)x²y = 3x²y'},
+  {t:'Biểu thức đại số',q:'Giá trị của x² − 2x + 1 khi x = 3 là?',o:['4','6','2','8'],a:0,e:'3²−2×3+1 = 9−6+1 = 4 = (3−1)² = 2² = 4'},
+  {t:'Biểu thức đại số',q:'Thu gọn (x+2)(x−2)',o:['x²−4','x²+4','x²−2','2x'],a:0,e:'Hằng đẳng thức: (a+b)(a−b)=a²−b²=(x+2)(x−2)=x²−4'},
+
+  // ── CHỦ ĐỀ 9: SỐ THỰC & CĂN BẬC HAI (câu 86–92) ──
+  {t:'Số thực & Căn',q:'√(a²) bằng biểu thức nào (a ≥ 0)?',o:['a','a²','2a','√a'],a:0,e:'Với a ≥ 0: √(a²) = a.'},
+  {t:'Số thực & Căn',q:'√49 = ?',o:['7','6','8','9'],a:0,e:'√49 = 7 vì 7² = 49.'},
+  {t:'Số thực & Căn',q:'√2 là số gì?',o:['Vô tỉ','Hữu tỉ','Nguyên','Tự nhiên'],a:0,e:'√2 không viết được dưới dạng phân số nên là số vô tỉ.'},
+  {t:'Số thực & Căn',q:'Số thực bao gồm những tập hợp nào?',o:['Hữu tỉ và vô tỉ','Chỉ số nguyên','Chỉ số tự nhiên','Chỉ số hữu tỉ'],a:0,e:'Tập số thực = tập số hữu tỉ ∪ tập số vô tỉ.'},
+  {t:'Số thực & Căn',q:'√(4 × 9) = ?',o:['6','13','36','√13'],a:0,e:'√(4×9) = √36 = 6. Hoặc √4×√9 = 2×3 = 6.'},
+  {t:'Số thực & Căn',q:'Giá trị nào gần √3 nhất?',o:['1,73','1,50','1,90','2,00'],a:0,e:'√3 ≈ 1,732...'},
+  {t:'Số thực & Căn',q:'√(25/4) = ?',o:['5/2','25/4','5/4','2/5'],a:0,e:'√(25/4) = √25/√4 = 5/2'},
+
+  // ── CHỦ ĐỀ 10: BÀI TOÁN ỨNG DỤNG (câu 93–100) ──
+  {t:'Ứng dụng',q:'Một cửa hàng giảm giá 20%. Giá gốc 150.000đ. Giá sau giảm là?',o:['120.000đ','130.000đ','140.000đ','100.000đ'],a:0,e:'Giá giảm = 150.000 × 20% = 30.000đ. Giá sau = 150.000 − 30.000 = 120.000đ.'},
+  {t:'Ứng dụng',q:'Một xe đi 120km trong 2 giờ. Vận tốc trung bình là?',o:['60 km/h','50 km/h','70 km/h','80 km/h'],a:0,e:'v = s/t = 120/2 = 60 km/h'},
+  {t:'Ứng dụng',q:'Bể nước hình chữ nhật dài 5m, rộng 4m, sâu 2m. Thể tích là?',o:['40 m³','20 m³','80 m³','10 m³'],a:0,e:'V = dài × rộng × sâu = 5×4×2 = 40 m³'},
+  {t:'Ứng dụng',q:'Lãi suất ngân hàng 6%/năm. Gửi 10 triệu, sau 1 năm lãi được?',o:['600.000đ','60.000đ','6.000.000đ','1.600.000đ'],a:0,e:'Lãi = 10.000.000 × 6% = 10.000.000 × 0,06 = 600.000đ'},
+  {t:'Ứng dụng',q:'Một lớp có 40 học sinh, 60% là nữ. Số học sinh nữ là?',o:['24','16','20','28'],a:0,e:'Số nữ = 40 × 60% = 40 × 0,6 = 24 học sinh.'},
+  {t:'Ứng dụng',q:'Bố 40 tuổi, con 10 tuổi. Bố hơn con bao nhiêu lần?',o:['4 lần','30 lần','3 lần','5 lần'],a:0,e:'40 ÷ 10 = 4 lần'},
+  {t:'Ứng dụng',q:'Một hình vuông có cạnh 6cm. Diện tích là?',o:['36 cm²','24 cm²','12 cm²','18 cm²'],a:0,e:'S = cạnh² = 6² = 36 cm²'},
+  {t:'Ứng dụng',q:'Chu vi hình tròn bán kính 7cm (π ≈ 3,14) là?',o:['43,96 cm','44 cm','21,98 cm','87,92 cm'],a:0,e:'C = 2πr = 2×3,14×7 = 43,96 cm'},
+];
+
+// ===== GAME STATE =====
+let qList = [], curQ = 0, score = 0, correct = 0, answered = false;
+
+function shuffle(arr) {
+  for(let i=arr.length-1;i>0;i--) {
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function startQuiz() {
+  qList = shuffle([...questions]);
+  curQ = 0; score = 0; correct = 0;
+  showScreen('screen-quiz');
+  loadQ();
+}
+
+function loadQ() {
+  answered = false;
+  const q = qList[curQ];
+  const total = qList.length;
+  document.getElementById('prog-label').textContent = `Câu ${curQ+1}/${total}`;
+  document.getElementById('prog-fill').style.width = ((curQ/total)*100)+'%';
+  document.getElementById('score-display').textContent = score;
+  document.getElementById('topic-badge').textContent = q.t;
+  document.getElementById('q-num').textContent = `Câu ${curQ+1}`;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('explain').className = 'explain';
+  document.getElementById('explain').textContent = '';
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.disabled = true;
+  nextBtn.textContent = curQ < qList.length-1 ? 'Câu tiếp theo →' : '🏆 Xem kết quả';
+
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.o.forEach((opt,i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span>${opt}`;
+    btn.onclick = () => selectAns(i);
+    opts.appendChild(btn);
+  });
+}
+
+function selectAns(idx) {
+  if(answered) return;
+  answered = true;
+  const q = qList[curQ];
+  const opts = document.querySelectorAll('.opt');
+  opts.forEach(o => o.classList.add('disabled'));
+  opts[q.a].classList.add('correct');
+
+  const exEl = document.getElementById('explain');
+  if(idx === q.a) {
+    score += 10; correct++;
+    document.getElementById('score-display').textContent = score;
+    exEl.className = 'explain show';
+    exEl.innerHTML = '✅ ' + q.e;
+  } else {
+    opts[idx].classList.add('wrong');
+    exEl.className = 'explain wrong-ex show';
+    exEl.innerHTML = '❌ ' + q.e;
+  }
+  document.getElementById('next-btn').disabled = false;
+}
+
+function nextQ() {
+  curQ++;
+  if(curQ >= qList.length) showResult();
+  else loadQ();
+}
+
+function showResult() {
+  showScreen('screen-result');
+  const pct = Math.round((correct/qList.length)*100);
+  document.getElementById('r-pct').textContent = pct+'%';
+  document.getElementById('r-correct').textContent = correct+'/'+qList.length;
+  document.getElementById('r-wrong').textContent = (qList.length-correct);
+  document.getElementById('r-score').textContent = score+' điểm';
+
+  let grade, msg;
+  if(pct>=90){grade='🥇 Xuất Sắc';msg='Bạn nắm vững toàn bộ kiến thức lớp 7!';}
+  else if(pct>=80){grade='🥈 Giỏi';msg='Rất tốt! Cố thêm một chút nữa nhé!';}
+  else if(pct>=65){grade='🥉 Khá';msg='Kết quả khá! Ôn lại những phần còn yếu.';}
+  else if(pct>=50){grade='📚 Trung Bình';msg='Cần ôn tập thêm để nắm chắc hơn.';}
+  else{grade='💪 Cần Cố Gắng';msg='Đừng nản lòng, ôn lại từ đầu nhé!';}
+  document.getElementById('r-grade').textContent = grade;
+  document.getElementById('r-msg').textContent = msg;
+}
+
+function restartQuiz() { startQuiz(); }
+function showStart() { showScreen('screen-start'); }
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>{s.style.display='none';s.classList.remove('active');});
+  const el = document.getElementById(id);
+  el.style.display='block';
+  setTimeout(()=>el.classList.add('active'),10);
+}
+
+// Init
+document.getElementById('screen-quiz').style.display='none';
+document.getElementById('screen-result').style.display='none';
+</script>
+</body>
+</html>
